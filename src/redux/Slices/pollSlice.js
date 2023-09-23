@@ -4,13 +4,13 @@ import { server } from "../store";
 
 
 
-export const createNewPoll = createAsyncThunk('createNewPoll', async () => {
+export const createNewPoll = createAsyncThunk('createNewPoll', async (name, vote) => {
     try {
         const response = await axios.post(`${server}/polldata`,
-            {name, vote, date},
+            {name, vote},
             {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'multipart/formdata',
                 }
             }
         );
@@ -27,9 +27,7 @@ export const pollSlice = createSlice({
         error: null,
         message: null,
     },
-    reducers: {
 
-    },
     extraReducers: (builder) => {
         builder
             .addCase(createNewPoll.pending, (state) => {
@@ -46,5 +44,8 @@ export const pollSlice = createSlice({
             })
     },
 })
+
+
+export default pollSlice;
 
 

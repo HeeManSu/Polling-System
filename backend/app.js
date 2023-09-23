@@ -26,7 +26,7 @@ app.use(cors({
 
 
 import poll from "./routes/pollRoutes.js"
-app.use("/api/v1", poll);
+app.use("/api/v1", poll)
 
 
 export default app;

@@ -1,49 +1,81 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-export const server = "http://localhost:4001/api/v1"
-export const createNewPoll = createAsyncThunk('createNewPoll', async (formdata) => {
-    console.log(formdata)
+const server = "http://localhost:4002/api/v1"
+
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+
+
+export const createNewPoll = createAsyncThunk('createNewPoll', async ({ name, vote }) => {
     try {
-        const response = await axios.post(`${server}/polldata`,
-            formdata,
-            // console.log(formdata),
+        // console.log(name, vote)
+        const response = await axios.post(`http://localhost:4002/api/v1/polldata`,
+            { name, vote },
             {
                 headers: {
                     'Content-Type': 'application/json',
                 }
             }
         );
-        const data = {
-            name: formdata.get('name'),
-        }
-        // const response = await fetch(`${server}/polldata`,
-        //     {
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         method: "POST",
-        //         body: JSON.stringify(formdata),
+        // console.log(response.data)
 
-        //     }
-        // );
+        return response.data;
+    } catch (error) {
+        throw new Error(error)
+    }
+})
 
-        return response.json();
+export const allData = createAsyncThunk('allData', async () => {
+    try {
+        const response = await axios.get(`http://localhost:4002/api/v1/polldata`,
+
+        );
+        // console.log(response.data)
+
+        return response.data;
     } catch (error) {
         throw new Error(error)
     }
 
+
+})
+export const barChartData = createAsyncThunk('barChartData', async () => {
+    try {
+        const response = await axios.get(`http://localhost:4002/api/v1/results`,
+        );
+        // console.log(response.data)
+
+        return response.data;
+    } catch (error) {
+        throw new Error(error)
+    }
 })
 
-const pollSlice = createSlice({
+
+export const lineChartData = createAsyncThunk('lineChartData', async ({ type }) => {
+    try {
+        const response = await axios.get(`http://localhost:4002/api/v1/totalvotes?choice=${type}`,
+        );
+        // console.log(response.data)
+
+        return response.data;
+    } catch (error) {
+        throw new Error(error)
+    }
+})
+
+
+
+
+export const pollSlice = createSlice({
     name: 'poll',
     initialState: {
-        loading: false,
-        error: null,
-        message: null,
+        // loading: false,
+        // error: null,
+        // message: null,
     },
-    reducers: {},
+
     extraReducers: (builder) => {
         builder
             .addCase(createNewPoll.pending, (state) => {
@@ -59,9 +91,44 @@ const pollSlice = createSlice({
                 state.loading = false;
                 state.error = action.error.message;
             })
+            .addCase(allData.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(allData.fulfilled, (state, action) => {
+                state.loading = false;
+                state.allPolls = action.payload.allPolls;
+                state.error = null;
+            })
+            .addCase(allData.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+            .addCase(barChartData.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(barChartData.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = action.payload.data;
+                state.error = null;
+            })
+            .addCase(barChartData.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+            .addCase(lineChartData.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(lineChartData.fulfilled, (state, action) => {
+                state.loading = false;
+                state.lineGraphData = action.payload.lineGraphData;
+                state.error = null;
+            })
+            .addCase(lineChartData.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
     },
 })
-
 const store = configureStore({
     reducer: {
         poll: pollSlice.reducer,

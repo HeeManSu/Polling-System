@@ -11,6 +11,9 @@ export const createPoll = catchAsyncError(async (req, res, next) => {
 
         const { name, vote } = req.body;
 
+        // console.log(name)
+        // console.log(vote)
+
         const newPoll = await pool.query(
             `INSERT INTO data
              (name, choice, "date")
@@ -49,9 +52,7 @@ export const getAllPoll = catchAsyncError(async (req, res, next) => {
 //This will count the total number of votes for the line chart.
 export const countVotes = catchAsyncError(async (req, res, next) => {
     try {
-
         const { choice } = req.query;
-
         if (choice.toLowerCase() === "all") {
             const countYes = await pool.query(
                 `SELECT COUNT(*), date
@@ -70,7 +71,7 @@ export const countVotes = catchAsyncError(async (req, res, next) => {
             );
 
             res.json({
-                data: {
+                lineGraphData: {
                     countYes: countYes.rows,
                     countNo: countNo.rows,
                     message: "Showing both data"
@@ -85,11 +86,10 @@ export const countVotes = catchAsyncError(async (req, res, next) => {
                 ORDER BY date`,
             );
             res.json({
-                data: count.rows,
+                lineGraphData: count.rows,
                 message: `Showing ${choice.toLowerCase()} data `
             })
         }
-
     } catch (error) {
         next(new errorHandlerClass("unable to count poll", 400))
     }

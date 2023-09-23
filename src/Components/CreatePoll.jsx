@@ -1,81 +1,63 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { createNewPoll } from '../redux/store.js'
-import { Input, Select } from '@chakra-ui/react';
+import { Button, Input, Radio, RadioGroup, Select, Stack } from '@chakra-ui/react';
+import { createNewPoll } from '../redux/store';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 const CreatePoll = () => {
-
     const [name, setName] = useState("");
-    const [vote, setVote] = useState("");
-    const [date, setDate] = useState("");
-
+    const [vote, setVote] = useState("yes");
     const dispatch = useDispatch();
-
-
-    const onSubmitHandler = (e) => {
+    const submitHandler = (e) => {
         e.preventDefault();
-        const myForm = new FormData();
-        myForm.append("name", name);
-        myForm.append("vote", vote);
-        myForm.append("date", date);
-        console.log(myForm.get("name"));
-        console.log(myForm.get("vote"));
-        console.log(myForm.get("date"));
-
-        dispatch(createNewPoll(myForm))
-
+        try {
+            dispatch(createNewPoll({ name, vote }))
+            toast.success("Vote Submitted successfully")
+        } catch (error) {
+            console.log("failed to dispatch data")
+        }
     }
-
-
-
     return (
-        <div className='w-full h-screen'>
-            <div className='flex flex-col items-center'>
-                <h1 className='text-center font-[700] text-[35px] pt-[25px]'>Polling System</h1>
+        <div className='w-full h-screen bg-blue-50'>
+            <div className='pt-[60px]'>
+                <h1 className='text-center  text-[40px] font-[700]'>Voice Your Choice: Your Vote Truly Counts!</h1>
 
-                <form className='pt-20' onSubmit={onSubmitHandler}>
-                    <div>
-                        <label>Enter full name</label>
-                        <Input
-                            required
-                            id='name'
-                            name='name'
-                            type='text'
-                            placeholder='Enter your name'
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label>Will you be willing to vote?</label>
-                        <Select
-                            required
-                            value={vote}
-                            onChange={(e) => setVote(e.target.value)}
-                        >
-                            <option value=''>Select an option</option>
-                            <option value='Yes'>Yes</option>
-                            <option value='No'>No</option>
-                        </Select>
-
-                    </div>
-                    <div>
-                        <label>Enter the date</label>
-                        <Input
-                            required
-                            id='date'
-                            name='date'
-                            type='date'
-                            placeholder='Select Date'
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                        />
-                    </div>
-                    <button>Submit</button>
-                </form>
+                <div className='bg-white rounded-lg w-[25%] mx-auto mt-[120px]'>
+                    <h1>Polling System</h1>
+                    <form onSubmit={submitHandler}>
+                        <div>
+                            <h1> Name</h1>
+                            <Input
+                                type='text'
+                                required
+                                placeholder='Enter your name'
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <RadioGroup value={vote} onChange={(val) => setVote(val)}>
+                                <Stack direction='row'>
+                                    <Radio
+                                        defaultChecked
+                                        value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                        </div>
+                        <Button
+                            type="submit"
+                        >Submit</Button>
+                    </form>
+                    <Link to={"/trends"}>
+                        <Button
+                            type='button'
+                        >Analysis</Button>
+                    </Link>
+                </div>
             </div>
         </div>
     )
 }
-
 export default CreatePoll
