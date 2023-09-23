@@ -61,21 +61,23 @@ export const PollTrends = () => {
     useEffect(() => {
         if (type === 'true' || type === 'false') {
             console.log(lineGraphData)
-            setLineData({
-                labels: lineGraphData?.map((val) => val?.date?.split("T")[0]),
-                datasets: [
-                    {
-                        label: type === "true" ? "Voted" : "Not Voted",
-                        data: lineGraphData?.map((obj) => {
-                            return obj.count;
-                        }),
-                        borderColor: type === "true" ? "#E5D283" : "#4F709C",
-                        tension: 0.1,
-                    },
-                ],
-            });
+            if (Array.isArray(lineGraphData)) {
+                setLineData({
+                    labels: lineGraphData?.map((val) => val?.date?.split("T")[0]),
+                    datasets: [
+                        {
+                            label: type === "true" ? "Voted" : "Not Voted",
+                            data: lineGraphData?.map((obj) => {
+                                return obj.count;
+                            }),
+                            borderColor: type === "true" ? "#E5D283" : "#4F709C",
+                            tension: 0.1,
+                        },
+                    ],
+                });
+            }
         } else if (type === "all") {
-       
+
             console.log(lineGraphData)
             const votedYesDates = [];
             lineGraphData?.countYes?.map((obj) => votedYesDates.push(obj.date.split("T")[0]));
@@ -87,7 +89,7 @@ export const PollTrends = () => {
                 labels: totalDates.map((date) => date.split("T")[0]),
                 datasets: [
                     {
-                        labels: "Voted Yes",
+                        label: "Voted Yes",
                         data: totalDates.map((date) => {
                             const i = votedYesDates.indexOf(date);
 
@@ -102,7 +104,7 @@ export const PollTrends = () => {
                         tension: 0.1,
                     },
                     {
-                        labels: " Voted No",
+                        label: " Voted No",
                         data: totalDates.map((date) => {
                             const i = votedNoDates.indexOf(date);
                             // console.log(i)
@@ -238,14 +240,14 @@ const LineChart = ({ chartData }) => {
         plugins: {
             legend: {
                 labels: {
-                    color: "white",
+                    color: "black",
                 },
             },
         },
         scales: {
             y: {
                 ticks: {
-                    color: "white",
+                    color: "black",
                     font: {
                         size: 13,
                     },
@@ -253,7 +255,7 @@ const LineChart = ({ chartData }) => {
             },
             x: {
                 ticks: {
-                    color: "white",
+                    color: "black",
                     font: {
                         size: 13,
                     },
