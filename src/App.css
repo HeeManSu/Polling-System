@@ -1,7 +1,7 @@
-/* .gradient1{
+.gradient1{
   background: rgb(255,255,255);
-   background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(10,236,113,1) 0%, rgba(0,255,116,0.9635503859747023) 100%);
-} */
+   background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgb(71, 191, 125) 0%, rgb(66, 234, 142) 100%);
+}
 
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */
@@ -18,4 +18,11 @@
 
 .shadow1{
 box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px;
+}
+
+.backgroundimage{
+  background-image: url("./assets/bg.svg");
+  background-repeat: no-repeat;
+  background-position: left;
+  background-attachment: fixed;
 }
