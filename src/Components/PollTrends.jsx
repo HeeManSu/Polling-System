@@ -186,7 +186,7 @@ export const PollTrends = () => {
                     <div className='shadow1 rounded-lg mb-[15px] 1xl:mt-[20px] lg:mt-14 mt-10 bg-white'>
                         <div className='pt-[20px] lg:pl-[20px] lg:px-0 px-3 pb-[30px] lg:w-[90%]   lg:h-[80%]'>
                             <div className='lg:text-center lg:pl-7 font-[500] pb-4 text-[18px]'>
-                          Line graph to show the number of votes on each date   
+                                Line graph to show the number of votes on each date
                             </div>
                             <LineChart chartData={lineData} />
                         </div>
@@ -199,21 +199,29 @@ export const PollTrends = () => {
 
 const AllData = () => {
     const { allPolls } = useSelector(state => state?.poll);
+    console.log("allpolls", allPolls) 
+
     return (
         <div className='shadow1 max-h-[450px] overflow-y-auto rounded-xl bg-white'>
             <div className=''>
                 <h1 className='text-[20px] font-[500] text-black text-center py-3'>Total votes</h1>
                 <table className='w-[100%]'>
                     <thead className='text-[18px] font-[400]'>
-                        <tr className=''>
-                            <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[1]?.name}</th>
-                            <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[2]?.name}</th>
-                            <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[3]?.name}</th>
-                        </tr>
+
+
+                        {
+                            allPolls && <tr className=''>
+                                {/* 
+                                <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[1]?.name}</th>
+                                <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[2]?.name}</th>
+                                <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[3]?.name}</th> */}
+                            </tr>
+                        }
+
                     </thead>
                     <tbody className='lg:text-center'>
                         {
-                            allPolls?.rows.length > 0 && allPolls.rows.map((row, index) => {
+                            allPolls?.rows.length > 0 && allPolls?.rows.map((row, index) => {
                                 const date = new Date(row.date);
                                 const year = date.getFullYear();
                                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -225,16 +233,16 @@ const AllData = () => {
                                 }
                                 const formattedDate = `${year}-${month}-${day}`;
                                 return (
-                                
-                                        <tr
-                                            key={index}
-                                            className={`${row.choice ? 'text-green-500' : 'text-red-500'} border border-b-gray-200 cursor-pointer rounded-lg duration-300`}
 
-                                        >
-                                            <td className='lg:px-6 lg:pl-0 pl-5 py-3'>{row.name}</td>
-                                            <td className='lg:px-6 lg:pl-0 pl-5 py-3' >{correctChoice} </td>
-                                            <td className='lg:px-6 lg:pl-0 pl-14 py-3'>{formattedDate}</td>
-                                        </tr>
+                                    <tr
+                                        key={index}
+                                        className={`${row.choice ? 'text-green-500' : 'text-red-500'} border border-b-gray-200 cursor-pointer rounded-lg duration-300`}
+
+                                    >
+                                        <td className='lg:px-6 lg:pl-0 pl-5 py-3'>{row.name}</td>
+                                        <td className='lg:px-6 lg:pl-0 pl-5 py-3' >{correctChoice} </td>
+                                        <td className='lg:px-6 lg:pl-0 pl-14 py-3'>{formattedDate}</td>
+                                    </tr>
                                 )
                             })
                         }
