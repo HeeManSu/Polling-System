@@ -2,7 +2,9 @@
 import pool from "../config/database.js";
 import { catchAsyncError } from "../middlewares/catchAsyncError.js"
 import errorHandlerClass from "../utils/errorClass.js"
+import knexInstance from "../config/database.js";
 // const pool = require("../config/database.js")
+
 
 
 //This will create new poll.
@@ -11,20 +13,26 @@ export const createPoll = catchAsyncError(async (req, res, next) => {
 
         const { name, vote } = req.body;
 
-        // console.log(name)
-        // console.log(vote)
+        console.log(name)
+        console.log(vote)
 
-        const newPoll = await pool.query(
-            `INSERT INTO data
-             (name, choice, "date")
-             VALUES
-             ($1, $2, $3) RETURNING *`,
-            [name, vote, new Date()]
-        );
+        // const newPoll = await pool.query(
+        //     `INSERT INTO data
+        //      (name, choice, "date")
+        //      VALUES
+        //      ($1, $2, $3) RETURNING *`,
+        //     [name, vote, new Date()]
+        // );
+
+        const newPoll = await knexInstance('data').insert({
+            name: name,
+            choice: vote,
+            date: new Date()
+        }).returning('*');
 
         res.status(200).json({
             success: true,
-            newPoll: newPoll.rows[0],
+            newPoll: newPoll[0],
             message: "New poll created successfully",
         });
     } catch (error) {
@@ -37,7 +45,9 @@ export const createPoll = catchAsyncError(async (req, res, next) => {
 export const getAllPoll = catchAsyncError(async (req, res, next) => {
     try {
 
-        const allPolls = await pool.query(`SELECT * FROM data ORDER BY date`);
+        // const allPolls = await pool.query(`SELECT * FROM data ORDER BY date`);
+        const allPolls = await knexInstance('data').orderBy('date');
+
         res.status(200).json({
             success: true,
             allPolls: allPolls
@@ -53,57 +63,82 @@ export const countVotes = catchAsyncError(async (req, res, next) => {
     try {
         const { choice } = req.query;
         if (choice.toLowerCase() === "all") {
-            const countYes = await pool.query(
-                `SELECT COUNT(*), date
-                FROM data
-                WHERE choice = true
-                GROUP BY date
-                ORDER BY date`
-            );
+            // const countYes = await pool.query(
+            //     `SELECT COUNT(*), date
+            //     FROM data
+            //     WHERE choice = true
+            //     GROUP BY date
+            //     ORDER BY date`
+            // );
 
-            const countNo = await pool.query(
-                `SELECT COUNT(*), date
-                FROM data
-                WHERE choice = false
-                GROUP BY date
-                ORDER BY date`
-            );
+            const countYes = await knexInstance('data')
+                .select(knexInstance.raw('COUNT(*) as count'), 'date')
+                .where('choice', true)
+                .groupBy('date')
+                .orderBy('date');
+
+
+            // const countNo = await pool.query(
+            //     `SELECT COUNT(*), date
+            //     FROM data
+            //     WHERE choice = false
+            //     GROUP BY date
+            //     ORDER BY date`
+            // );
+
+            const countNo = await knexInstance('data')
+                .select(knexInstance.raw('COUNT(*) as count'), 'date')
+                .where('choice', false)
+                .groupBy('date')
+                .orderBy('date');
 
             res.json({
                 lineGraphData: {
-                    countYes: countYes.rows,
-                    countNo: countNo.rows,
+                    countYes: countYes,
+                    countNo: countNo,
                     message: "Showing both data"
                 }
             })
         } else {
-            const count = await pool.query(
-                `SELECT COUNT(*), date
-                FROM data
-                WHERE choice = ${choice.toLowerCase()}
-                GROUP BY date
-                ORDER BY date`,
-            );
+            // const count = await pool.query(
+            //     `SELECT COUNT(*), date
+            //     FROM data
+            //     WHERE choice = ${choice.toLowerCase()}
+            //     GROUP BY date
+            //     ORDER BY date`,
+            // );
+
+            const count = await knexInstance('data')
+                .select(knexInstance.raw('COUNT(*) as count'), 'date')
+                .where('choice', choice.toLowerCase())
+                .groupBy('date')
+                .orderBy('date');
+
             res.json({
-                lineGraphData: count.rows,
+                lineGraphData: count,
                 message: `Showing ${choice.toLowerCase()} data `
             })
         }
     } catch (error) {
-        next(new errorHandlerClass("unable to count poll", 400))
+        return new Error(error)
     }
 })
 
 //This will show the count the total yes and no.
 export const countResults = catchAsyncError(async (req, res, next) => {
     try {
-        const result = await pool.query(
-            `SELECT COUNT(*), 
-            choice FROM data GROUP BY
-            choice`
-        );
+        // const result = await pool.query(
+        //     `SELECT COUNT(*), 
+        //     choice FROM data GROUP BY
+        //     choice`
+        // );
+
+        const result = await knexInstance('data')
+            .select(knexInstance.raw('COUNT(*) as count'), 'choice')
+            .groupBy('choice');
+
         res.json({
-            data: result.rows,
+            data: result,
             message: "Showing overall results"
         });
     } catch (error) {

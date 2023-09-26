@@ -211,17 +211,17 @@ const AllData = () => {
 
                         {
                             allPolls && <tr className=''>
-                                {/* 
-                                <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[1]?.name}</th>
-                                <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[2]?.name}</th>
-                                <th className='py-2 text-[20px] font-[500]'>{allPolls?.fields[3]?.name}</th> */}
+                                
+                                <th className='py-2 text-[20px] font-[500]'>Name</th>
+                                <th className='py-2 text-[20px] font-[500]'>Choice</th>
+                                <th className='py-2 text-[20px] font-[500]'>Date</th>
                             </tr>
                         }
 
                     </thead>
                     <tbody className='lg:text-center'>
                         {
-                            allPolls?.rows.length > 0 && allPolls?.rows.map((row, index) => {
+                            allPolls?.length > 0 && allPolls?.map((row, index) => {
                                 const date = new Date(row.date);
                                 const year = date.getFullYear();
                                 const month = String(date.getMonth() + 1).padStart(2, '0');
