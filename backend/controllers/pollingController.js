@@ -1,6 +1,5 @@
 // import {pool} from "../config/database.js";
 import pool from "../config/database.js";
-import { redis } from "../config/redis.js";
 import { catchAsyncError } from "../middlewares/catchAsyncError.js"
 import errorHandlerClass from "../utils/errorClass.js"
 // const pool = require("../config/database.js")
@@ -44,7 +43,6 @@ export const getAllPoll = catchAsyncError(async (req, res, next) => {
             allPolls: allPolls
         })
     } catch (error) {
-
         next(new errorHandlerClass("unable to get all poll", 400))
     }
 })
@@ -54,100 +52,62 @@ export const getAllPoll = catchAsyncError(async (req, res, next) => {
 export const countVotes = catchAsyncError(async (req, res, next) => {
     try {
         const { choice } = req.query;
+        if (choice.toLowerCase() === "all") {
+            const countYes = await pool.query(
+                `SELECT COUNT(*), date
+                FROM data
+                WHERE choice = true
+                GROUP BY date
+                ORDER BY date`
+            );
 
-        const redisKey = `countVotes:${choice.toLowerCase()}`;
+            const countNo = await pool.query(
+                `SELECT COUNT(*), date
+                FROM data
+                WHERE choice = false
+                GROUP BY date
+                ORDER BY date`
+            );
 
-        redis.get(redisKey, async (err, cachedData) => {
-            if (err) throw err;
-
-            if (cachedData) {
-
-                console.log("Showing cached data for the line graph")
-
-                res.json({
-                    lineGraphData: JSON.parse(cachedData),
-                    message: `Showing ${choice.toLowerCase()} data (cached)`
-                });
-            } else {
-                console.log("showing database data for the line graph")
-                let count;
-                if (choice.toLowerCase() === "all") {
-                    const countYes = await pool.query(
-                        `SELECT COUNT(*), date
-                        FROM data
-                        WHERE choice = true
-                        GROUP BY date
-                        ORDER BY date`
-                    );
-
-                    const countNo = await pool.query(
-                        `SELECT COUNT(*), date
-                        FROM data
-                        WHERE choice = false
-                        GROUP BY date
-                        ORDER BY date`
-                    );
-                    count = {
-                        countYes: countYes.rows,
-                        countNo: countNo.rows,
-                        message: "Showing both data"
-                    };
-                } else {
-                    const result = await pool.query(
-                        `SELECT COUNT(*), date
-                        FROM data
-                        WHERE choice = ${choice.toLowerCase()}
-                        GROUP BY date
-                        ORDER BY date`,
-                    );
-                    count = {
-                        lineGraphData: result.rows,
-                        message: `Showing ${choice.toLowerCase()} data `
-                    };
+            res.json({
+                lineGraphData: {
+                    countYes: countYes.rows,
+                    countNo: countNo.rows,
+                    message: "Showing both data"
                 }
-
-                redis.setex(redisKey, 3600, JSON.stringify(count)); 
-
-                res.json(count);
-            }
-        });
+            })
+        } else {
+            const count = await pool.query(
+                `SELECT COUNT(*), date
+                FROM data
+                WHERE choice = ${choice.toLowerCase()}
+                GROUP BY date
+                ORDER BY date`,
+            );
+            res.json({
+                lineGraphData: count.rows,
+                message: `Showing ${choice.toLowerCase()} data `
+            })
+        }
     } catch (error) {
-        next(new errorHandlerClass("unable to count poll", 400));
+        next(new errorHandlerClass("unable to count poll", 400))
     }
 })
 
 //This will show the count the total yes and no.
 export const countResults = catchAsyncError(async (req, res, next) => {
     try {
-        redis.get('countResults', async (err, cachedData) => {
-            if (err) throw err;
-
-            if (cachedData) {
-
-                console.log("Showing you cached total count for bar graph ")
-                res.json({
-                    data: JSON.parse(cachedData),
-                    message: "Showing overall results (cached)"
-                });
-            } else {
-                const result = await pool.query(
-                    `SELECT COUNT(*), 
-                    choice FROM data GROUP BY
-                    choice`
-                );
-
-                console.log("Total count data for bar graph is fetched from the database")
-                if (result) {
-                    redis.setex('countResults', 3600, JSON.stringify(result.rows));
-                }
-                res.json({
-                    data: result.rows,
-                    message: "Showing overall results"
-                });
-            }
+        const result = await pool.query(
+            `SELECT COUNT(*), 
+            choice FROM data GROUP BY
+            choice`
+        );
+        res.json({
+            data: result.rows,
+            message: "Showing overall results"
         });
     } catch (error) {
-        next(new errorHandlerClass("unable to show overall results", 400));
+        next(new errorHandlerClass("unable to show overall results", 400))
     }
 })
 

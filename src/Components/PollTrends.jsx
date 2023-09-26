@@ -231,7 +231,7 @@ const AllData = () => {
                                 if (row.choice === false) {
                                     correctChoice = "no";
                                 }
-                                const formattedDate = `${year}-${month}-${day}`;
+                                const formattedDate = `${day}-${month}-${year}`;
                                 return (
 
                                     <tr
