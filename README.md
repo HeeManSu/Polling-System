@@ -5,7 +5,7 @@
 This assignment is given for the full-stack intern role at TagHash. It is a polling system and based on the poll data it shows some charts. \
 In this project, I've used node.js and express for the backend, react for the frontend, PostgreSQL for the database, and Introduced caching(Redis + upstash) mechanism.
 
-## Infrastructre Diagram of Dukaan Prototype:
+## Infrastructre Diagram the polling system:
 
 ![diagram](https://github.com/cybrog-x/Polling-System/assets/97340980/c3d45af2-8259-459c-ae88-6ced56707507)
 
@@ -29,10 +29,10 @@ In this page, the user can give the name and choice as input. The current date i
 
 **Analysis Page** 👇\
 This page included a Bar Chart, Line Chart, Doughnut Chart, and all the polls.\
-The doughnut chart was not mentioned in the assignment but i have added it just to show my skills.
+The doughnut chart was not mentioned in the assignment but I have added it just to show my skills.
 ![taghash2](https://github.com/cybrog-x/Polling-System/assets/97340980/92b70534-b5ff-4729-af40-19a8ea728c8f)
 
-## Optimization using caching mechanism 
+## Optimization using a caching mechanism 
 Again just to ensure my internship, I have used implemented caching using (Redis + upstash) which reduces the query response time by 35%-40%.
 \
 **Demo in the postman**
@@ -40,7 +40,7 @@ Again just to ensure my internship, I have used implemented caching using (Redis
 https://github.com/cybrog-x/Polling-System/assets/97340980/f22c0946-216e-4ddb-934b-2fae5c3e5398
 
 **Backend with redis link**
-Since, it was not mentioned in the assignment.So, i thought to keep the backend with redis in a separate repository.
+Since, it was not mentioned in the assignment. So, i thought to keep the backend with redis in a separate repository.
 
 https://github.com/cybrog-x/Polling-System-Backend
 
