@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { allData, barChartData, lineChartData } from '../redux/store';
 import { Bar, Line, Doughnut } from "react-chartjs-2"
 import 'chart.js/auto';
-import { Button, Input, Radio, RadioGroup, Select, Stack } from '@chakra-ui/react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Button, Input } from '@chakra-ui/react';
 
 
 
@@ -11,13 +13,28 @@ export const PollTrends = () => {
     const dispatch = useDispatch();
     const [type, setType] = useState("all");
     // console.log(type)
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    useEffect(() => {
+        const today = new Date();
+        const fourDaysAgo = new Date(today);
+        fourDaysAgo.setDate(today.getDate() - 4);
+
+        const formattedToday = today.toISOString().split("T")[0];
+        const formattedFourDaysAgo = fourDaysAgo.toISOString().split("T")[0];
+
+        setStartDate(formattedFourDaysAgo);
+        setEndDate(formattedToday);
+    }, []);
+
 
     useEffect(() => {
         dispatch(allData());
         dispatch(barChartData());
         dispatch(lineChartData({ type }))
     }, [])
-
 
     const { data, lineGraphData } = useSelector(state => state?.poll);
 
@@ -43,7 +60,6 @@ export const PollTrends = () => {
         };
     }, [data]);
 
-
     const [lineData, setLineData] = useState({
         labels: null,
         datasets: [],
@@ -51,7 +67,7 @@ export const PollTrends = () => {
 
     useEffect(() => {
         if (type === 'true' || type === 'false') {
-            console.log(lineGraphData)
+            // console.log(lineGraphData)
             if (Array.isArray(lineGraphData)) {
                 setLineData({
                     labels: lineGraphData?.map((val, index) => ({ id: index, value: val?.date?.split("T")[0] })),
@@ -68,14 +84,30 @@ export const PollTrends = () => {
                 });
             }
         } else if (type === "all") {
-            console.log(lineGraphData)
+            // console.log(lineGraphData)
             const votedYesDates = [];
-            lineGraphData?.countYes?.map((obj) => votedYesDates.push(obj.date.split("T")[0]));
             const votedNoDates = [];
-            lineGraphData?.countNo?.map((obj) => votedNoDates.push(obj.date.split("T")[0]));
-            const totalDates = [...new Set([...votedYesDates, ...votedNoDates])]
-            setLineData({
+            if (startDate && endDate) {
+                lineGraphData?.countYes?.forEach((obj) => {
+                    const date = obj.date.split("T")[0];
+                    if (date >= startDate && date <= endDate) {
+                        votedYesDates.push(date);
+                    }
+                });
 
+                lineGraphData?.countNo?.forEach((obj) => {
+                    const date = obj.date.split("T")[0];
+                    if (date >= startDate && date <= endDate) {
+                        votedNoDates.push(date);
+                    }
+                });
+            } else {
+                lineGraphData?.countYes?.map((obj) => votedYesDates.push(obj.date.split("T")[0]));
+                lineGraphData?.countNo?.map((obj) => votedNoDates.push(obj.date.split("T")[0]));
+            }
+            const totalDates = [...new Set([...votedYesDates, ...votedNoDates])]
+            console.log(totalDates)
+            setLineData({
                 labels: totalDates.map((date) => date.split("T")[0]),
                 datasets: [
                     {
@@ -113,7 +145,8 @@ export const PollTrends = () => {
 
             });
         }
-    }, [type, lineGraphData])
+    }, [type, lineGraphData, startDate, endDate]);
+
 
     const [doughnutData, setDoughnutData] = useState({
         labels: null,
@@ -183,10 +216,60 @@ export const PollTrends = () => {
                             <BarChart chartData={barData} />
                         </div>
                     </div>
-                    <div className='shadow1 rounded-lg mb-[15px] 1xl:mt-[20px] lg:mt-14 mt-10 bg-white'>
-                        <div className='pt-[20px] lg:pl-[20px] lg:px-0 px-3 pb-[30px] lg:w-[90%]   lg:h-[80%]'>
-                            <div className='lg:text-center lg:pl-7 font-[500] pb-4 text-[18px]'>
-                                Line graph to show the number of votes on each date
+                    <div
+                        className='shadow1 rounded-lg mb-[15px] 1xl:mt-[20px] lg:mt-14 mt-10 bg-white'>
+                        <div className='pt-[20px] lg:pl-[20px] lg:px-0 px-3 pb-[30px] lg:w-[95%]   lg:h-[80%]'>
+                            <div
+
+                            className='flex justify-between items-center'>
+                                <div className='lg:text-center lg:pl-7 font-[500] pb-4 text-[18px]'>
+                                    Shows the number of votes on each date
+                                </div>
+                                <div className="flex justify-center mb-4">
+                                    <Button
+                                        type='button'
+                                        onClick={() => setDropdownOpen(!dropdownOpen)}
+
+                                        bg={'blue.400'}
+                                        textColor={'white'}
+                                        _hover={{
+                                            backgroundColor: "blue.500"
+                                        }}
+                                    >
+                                        Filter Date
+                                    </Button>
+                                    {dropdownOpen && (
+                                        <div className="absolute shadow1  bg-white mt-12 mr-56 z-50  rounded  my-4">
+                                            <div className='flex px-5 py-5'>
+                                                <div>
+                                                    <label className='text-[15px] font-[500] text-gray-500'>Start date</label>
+                                                    <Input
+                                                        marginTop={'2'}
+                                                        className='border border-red-400'
+                                                        type='date'
+                                                        value={startDate}
+                                                        onChange={(e) => setStartDate(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <span className='text-black text-[15px] font-[500]'>to</span>
+
+                                                <div className=''>
+                                                    <label className='text-[15px] pl-[102px] font-[500] text-gray-500'>End date</label>
+                                                    <Input
+                                                        marginTop={'2'}
+                                                        className='border border-red-400'
+                                                        type='date'
+                                                        value={endDate}
+                                                        onChange={(e) => setEndDate(e.target.value)}
+                                                    />
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <LineChart chartData={lineData} />
                         </div>
@@ -199,7 +282,7 @@ export const PollTrends = () => {
 
 const AllData = () => {
     const { allPolls } = useSelector(state => state?.poll);
-    console.log("allpolls", allPolls) 
+    console.log("allpolls", allPolls)
 
     return (
         <div className='shadow1 max-h-[450px] overflow-y-auto rounded-xl bg-white'>
@@ -211,7 +294,7 @@ const AllData = () => {
 
                         {
                             allPolls && <tr className=''>
-                                
+
                                 <th className='py-2 text-[20px] font-[500]'>Name</th>
                                 <th className='py-2 text-[20px] font-[500]'>Choice</th>
                                 <th className='py-2 text-[20px] font-[500]'>Date</th>

@@ -28,7 +28,12 @@ export const createNewPoll = createAsyncThunk('createNewPoll', async ({ name, vo
 
 export const allData = createAsyncThunk('allData', async () => {
     try {
-        const response = await axios.get(`http://localhost:4002/api/v1/polldata`,
+        const response = await axios.get(`http://localhost:4002/api/v1/polldata`, {
+            params: {
+                page: 1,
+                size: 10,
+            }
+        }
 
         );
         // console.log(response.data)
