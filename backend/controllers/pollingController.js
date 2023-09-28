@@ -16,13 +16,6 @@ export const createPoll = catchAsyncError(async (req, res, next) => {
         console.log(name)
         console.log(vote)
 
-        // const newPoll = await pool.query(
-        //     `INSERT INTO data
-        //      (name, choice, "date")
-        //      VALUES
-        //      ($1, $2, $3) RETURNING *`,
-        //     [name, vote, new Date()]
-        // );
 
         const newPoll = await knexInstance('data').insert({
             name: name,
@@ -45,7 +38,6 @@ export const createPoll = catchAsyncError(async (req, res, next) => {
 export const getAllPoll = catchAsyncError(async (req, res, next) => {
     try {
 
-        // const allPolls = await knexInstance('data').orderBy('date', 'desc');
 
         const page = parseInt(req.query.page) || 1;
         const size = parseInt(req.query.size) || 10;
@@ -60,9 +52,10 @@ export const getAllPoll = catchAsyncError(async (req, res, next) => {
         const total = parseInt(totalQuery.total);
         console.log("total ", total);
         const allPolls = await knexInstance('data')
-        .select('*')
-        .offset(offSet)
-        .limit(size);
+            .select('*')
+            .offset(offSet)
+            .limit(size)
+            .orderBy('date', 'desc')
 
         res.status(200).json({
             success: true,
@@ -122,11 +115,7 @@ export const countVotes = catchAsyncError(async (req, res, next) => {
 //This will show the count the total yes and no.
 export const countResults = catchAsyncError(async (req, res, next) => {
     try {
-        // const result = await pool.query(
-        //     `SELECT COUNT(*), 
-        //     choice FROM data GROUP BY
-        //     choice`
-        // );
+
 
         const result = await knexInstance('data')
             .select(knexInstance.raw('COUNT(*) as count'), 'choice')

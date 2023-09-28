@@ -26,17 +26,16 @@ export const createNewPoll = createAsyncThunk('createNewPoll', async ({ name, vo
     }
 })
 
-export const allData = createAsyncThunk('allData', async () => {
+export const allData = createAsyncThunk('allData', async (page) => {
     try {
         const response = await axios.get(`http://localhost:4002/api/v1/polldata`, {
             params: {
-                page: 1,
+                page: page,
                 size: 10,
             }
         }
-
         );
-        // console.log(response.data)
+        console.log(response.data)
 
         return response.data;
     } catch (error) {
@@ -102,6 +101,9 @@ export const pollSlice = createSlice({
             .addCase(allData.fulfilled, (state, action) => {
                 state.loading = false;
                 state.allPolls = action.payload.allPolls;
+                state.total = action.payload.total;
+                state.page = action.payload.page;
+                state.size = action.payload.size;
                 state.error = null;
             })
             .addCase(allData.rejected, (state, action) => {
