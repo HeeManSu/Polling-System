@@ -35,7 +35,7 @@ export const allData = createAsyncThunk('allData', async (page) => {
             }
         }
         );
-        console.log(response.data)
+        // console.log(response.data)
 
         return response.data;
     } catch (error) {
@@ -78,6 +78,12 @@ export const pollSlice = createSlice({
         // loading: false,
         // error: null,
         // message: null,
+        allPolls: [],
+    },
+    reducers: {
+        setAllPolls: (state, action) => {
+            return { ...state, setAllPolls: action.payload.allPolls }
+        }
     },
 
     extraReducers: (builder) => {
@@ -141,6 +147,7 @@ const store = configureStore({
         poll: pollSlice.reducer,
     }
 })
+export const { setAllPolls } = pollSlice.actions;
 
 
 export default store;

@@ -4,10 +4,8 @@ import { allData, barChartData, lineChartData } from '../redux/store';
 import { Bar, Line, Doughnut } from "react-chartjs-2"
 import 'chart.js/auto';
 import { Button, Input } from '@chakra-ui/react';
-// import { FiX } from "react-icons/fi";
-// import RightIcon from "../assets/RightIcon.svg"
-// import LeftIcon from "../assets/LeftIcon.svg"
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/index';
+import { useRef } from 'react';
 
 
 export const PollTrends = () => {
@@ -18,6 +16,24 @@ export const PollTrends = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [page, setPage] = useState(1);
     const { total } = useSelector(state => state?.poll);
+    const { allPolls } = useSelector(state => state?.poll);
+
+
+
+    console.log(allPolls)
+
+    const [fetchedData, setFetchedData] = useState([]);
+
+    useEffect(() => {
+        if (allPolls) {
+            setFetchedData((prev) => [...prev, ...allPolls]);
+        }
+    }, [allPolls])
+    console.log(fetchedData)
+
+
+    const scrollRef = useRef();
+
 
     useEffect(() => {
         const today = new Date();
@@ -107,7 +123,6 @@ export const PollTrends = () => {
                 lineGraphData?.countNo?.map((obj) => votedNoDates.push(obj.date.split("T")[0]));
             }
             const totalDates = [...new Set([...votedYesDates, ...votedNoDates])]
-            console.log(totalDates)
             setLineData({
                 labels: totalDates.map((date) => date.split("T")[0]),
                 datasets: [
@@ -180,9 +195,33 @@ export const PollTrends = () => {
     }, [data])
 
     const selectPageHandler = (selectedPage) => {
-        setPage(selectedPage)
-        console.log(selectedPage)
+        setPage(selectedPage);
     }
+
+    const handleScroll = async () => {
+
+        
+        const scrollY = scrollRef.current.scrollTop;
+        const clientHeight = scrollRef.current.clientHeight;
+        const scrollHeight = scrollRef.current.scrollHeight;
+        console.log("scrollY", scrollY)
+        console.log("clientHeight", clientHeight)
+        console.log("scrollHeight", scrollHeight)
+
+
+        try {
+            if (scrollHeight <= scrollY + 1 + clientHeight) {
+                setPage((prev) => prev + 1)
+            }
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    useEffect(() => {
+        const scrollRefElement = scrollRef.current; 
+        scrollRefElement.addEventListener('scroll', handleScroll);
+    }, []);
 
     return (
         <div className='bg-[#F8FAFF] w-full'>
@@ -196,9 +235,39 @@ export const PollTrends = () => {
                             <h1 className='py-2 text-[18px] font-[500]'>Date</h1>
                         </div>
                         <div className=' rounded-xl    lg:mx-[30px] mx-[15px]'>
-                            <AllData />
-                            <div className='flex items-center justify-around py-3'>
+                            <div ref={scrollRef} className=' h-[400px] overflow-y-auto '>
+                                <div className=''>
+                                    <table className='w-[100%]'>
 
+                                        <tbody className='lg:text-center'>
+                                            {
+                                                fetchedData?.length > 0 && fetchedData?.map((row, index) => {
+                                                    const date = new Date(row.date);
+                                                    const year = date.getFullYear();
+                                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                    const day = String(date.getDate()).padStart(2, '0');
+                                                    var correctChoice = "yes";
+                                                    if (row.choice === false) {
+                                                        correctChoice = "no";
+                                                    }
+                                                    const formattedDate = `${day}-${month}-${year}`;
+                                                    return (
+                                                        <tr
+                                                            key={index}
+                                                            className={`${row.choice ? 'text-green-500' : 'text-red-500'} border border-b-gray-200 cursor-pointer rounded-lg duration-300`}
+                                                        >
+                                                            <td className='lg:px-6 lg:pl-0 pl-5 py-[9px]'>{row.name}</td>
+                                                            <td className='lg:px-6 lg:pl-0 pl-5 py-[9px]' >{correctChoice} </td>
+                                                            <td className='lg:px-6 lg:pl-0 pl-14 py-[9px]'>{formattedDate}</td>
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {/* <div className='flex items-center justify-around py-3'>
                                 <div className=" ">
                                     <div>
                                         {page !== 1 && (
@@ -232,10 +301,10 @@ export const PollTrends = () => {
                                     )}
                                 </div>
 
-                            </div>
+                            </div> */}
                         </div>
                     </div>
-                    <div className='bg-white lg:pt-6 lg:pr-8  lg:flex xl:max-w-[80%] max-w-[95%] mx-auto rounded-xl px-5 shadow1'>
+                    <div className='bg-white lg:pt-4 lg:mt-5 lg:pr-8  lg:flex xl:max-w-[80%] max-w-[95%] mx-auto rounded-xl px-5 shadow1'>
                         <div className='xl:w-[40%] lg:w-[60%] mx-auto w-[90%] py-2 '>
                             <Doughnut data={doughnutData} />
                         </div>
@@ -321,58 +390,6 @@ export const PollTrends = () => {
                     </div>
                 </div>
             </div>
-        </div>
-    )
-}
-
-const AllData = () => {
-    const { allPolls, total } = useSelector(state => state?.poll);
-    console.log(allPolls)
-    console.log(total)
-    return (
-        <div className=' h-[450px] overflow-y-auto '>
-            <div className=''>
-                {/* <h1 className='text-[20px] font-[500] text-black text-center py-3'>Total votes</h1> */}
-                <table className='w-[100%]'>
-                    {/* <thead className='text-[18px] font-[400]'>
-                        {
-                            allPolls && <tr className=''>
-
-                                <th className='py-2 text-[18px] font-[500]'>Name</th>
-                                <th className='py-2 text-[18px] font-[500]'>Choice</th>
-                                <th className='py-2 text-[18px] font-[500]'>Date</th>
-                            </tr>
-                        }
-                    </thead> */}
-                    <tbody className='lg:text-center'>
-                        {
-                            allPolls?.length > 0 && allPolls?.map((row, index) => {
-                                const date = new Date(row.date);
-                                const year = date.getFullYear();
-                                const month = String(date.getMonth() + 1).padStart(2, '0');
-                                const day = String(date.getDate()).padStart(2, '0');
-                                var correctChoice = "yes";
-                                if (row.choice === false) {
-                                    correctChoice = "no";
-                                }
-                                const formattedDate = `${day}-${month}-${year}`;
-                                return (
-                                    <tr
-                                        key={index}
-                                        className={`${row.choice ? 'text-green-500' : 'text-red-500'} border border-b-gray-200 cursor-pointer rounded-lg duration-300`}
-                                    >
-                                        <td className='lg:px-6 lg:pl-0 pl-5 py-[9px]'>{row.name}</td>
-                                        <td className='lg:px-6 lg:pl-0 pl-5 py-[9px]' >{correctChoice} </td>
-                                        <td className='lg:px-6 lg:pl-0 pl-14 py-[9px]'>{formattedDate}</td>
-                                    </tr>
-                                )
-                            })
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-
         </div>
     )
 }
