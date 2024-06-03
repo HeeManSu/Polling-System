@@ -1,11 +1,11 @@
-# TagHash Assignment - Polling system and trend analysis
+#  Polling system and trend analysis
 ## **Node.js + express + React + Postgres + redis 🔥 🔥 🔥**
 
 ## Quick Introduction:
-This assignment is given for the full-stack intern role at TagHash. It is a polling system and based on the poll data it shows some charts. \
+It is a polling system and based on the poll data it shows some charts. \
 In this project, I've used node.js and express for the backend, react for the frontend, PostgreSQL for the database, and Introduced caching(Redis + upstash) mechanism.
 
-## Infrastructure Diagram the polling system:
+## Working Diagram the polling system:
 
 ![diagram](https://github.com/cybrog-x/Polling-System/assets/97340980/c3d45af2-8259-459c-ae88-6ced56707507)
 
@@ -32,17 +32,6 @@ This page included a Bar Chart, Line Chart, Doughnut Chart, and all the polls.\
 The doughnut chart was not mentioned in the assignment but I have added it just to show my skills.
 ![taghash2](https://github.com/cybrog-x/Polling-System/assets/97340980/92b70534-b5ff-4729-af40-19a8ea728c8f)
 
-## Optimization using a caching mechanism 
-Again just to ensure my internship, I have used implemented caching using (Redis + upstash) which reduces the query response time by 35%-40%.
-\
-**Demo in the postman**
-
-https://github.com/cybrog-x/Polling-System/assets/97340980/f22c0946-216e-4ddb-934b-2fae5c3e5398
-
-**Backend with Redis link**
-Since it was not mentioned in the assignment. So, I thought to keep the backend with Redis in a separate repository.
-
-https://github.com/cybrog-x/Polling-System-Backend
 
 ## Changes I was told to make
 **1. Add pagination when you fetch all data**\
@@ -113,4 +102,4 @@ Now, to run the server give the command ```npm run dev``` in the backend folder 
 
 
 ## Closing Note:
-I successfully completed this assignment for the full-stack internship role at TagHash.
+I successfully completed this assignment.
